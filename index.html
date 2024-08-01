@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF HUB</title>
+    <style>
+        /* Example CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        #upload-section, #reading-section, #download-section {
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>PDF HUB</h1>
+    </header>
+    <main>
+        <section id="upload-section">
+            <h2>Upload Your Files</h2>
+            <form id="upload-form">
+                <input type="file" id="file-input" multiple>
+                <button type="submit">Upload</button>
+            </form>
+        </section>
+        <section id="reading-section">
+            <h2>Online Reading</h2>
+            <p>This feature will allow you to read PDF files online.</p>
+        </section>
+        <section id="download-section">
+            <h2>Download for Public</h2>
+            <p>Uploaded files will be available for download here.</p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 PDF HUB</p>
+    </footer>
+    <script>
+        // Example JavaScript
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded and ready');
+        });
+
+        // Form submission handling
+        document.getElementById('upload-form').addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent the default form submission behavior
+            const fileInput = document.getElementById('file-input');
+            if (fileInput.files.length > 0) {
+                console.log('Files selected:', fileInput.files);
+                // Implement file upload logic here
+            } else {
+                console.log('No files selected');
+            }
+        });
+    </script>
+</body>
+</html>
