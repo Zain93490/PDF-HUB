@@ -264,23 +264,26 @@ export default async (req, res) => {
     form.uploadDir = uploadDir;
     form.keepExtensions = true;
 
-    // Parse the incoming form
-    form.parse(req, (err, fields, files) => {
-      if (err) {
-        // Log the error for debugging
-        console.error('Error parsing the files:', err);
-        res.status(500).json({ error: 'Error parsing the files' });
-        return;
-      }
+    try {
+      const parsedData = await new Promise((resolve, reject) => {
+        form.parse(req, (err, fields, files) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve({ fields, files });
+        });
+      });
 
       // Send a success response with the uploaded file information
-      res.status(200).json({ fields, files });
-    });
+      res.status(200).json(parsedData);
+    } catch (err) {
+      // Log the error for debugging
+      console.error('Error parsing the files:', err.message);
+      res.status(500).json({ error: 'Error parsing the files' });
+    }
   } else {
     // Handle any other HTTP method
     res.setHeader('Allow', ['POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };
-// Log more detailed error information
-console.error('Error parsing the files:', err.message);
