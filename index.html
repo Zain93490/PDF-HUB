@@ -5,214 +5,149 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF HUB</title>
     <style>
-        /* Example CSS */
         body {
             font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
         }
 
         header {
             background-color: #333;
             color: #fff;
-            padding: 10px 0;
+            padding: 1rem;
             text-align: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        header nav ul li {
+            display: inline;
+            margin: 0 10px;
+        }
+
+        header nav ul li a {
+            color: #fff;
+            text-decoration: none;
         }
 
         main {
-            padding: 20px;
+            padding: 70px 2rem 2rem 2rem;
+            text-align: center;
         }
 
-        #upload-section, #reading-section, #download-section {
-            margin-bottom: 20px;
+        section {
+            margin: 2rem 0;
         }
 
         form {
-            display: flex;
-            flex-direction: column;
+            margin: 0 auto;
+            max-width: 500px;
+            background: #fff;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
 
         input[type="file"] {
-            margin-bottom: 10px;
+            display: block;
+            margin: 1rem auto;
         }
 
         button {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #333;
+            color: #fff;
             border: none;
-            padding: 10px;
+            padding: 0.5rem 1rem;
             cursor: pointer;
+            border-radius: 5px;
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #555;
+        }
+
+        #response {
+            margin-top: 1rem;
         }
 
         footer {
             background-color: #333;
             color: #fff;
             text-align: center;
-            padding: 10px;
+            padding: 1rem;
             position: fixed;
             width: 100%;
             bottom: 0;
         }
     </style>
+    <meta name="description" content="PDF HUB - Upload, read, and download PDF files online.">
+    <meta name="keywords" content="PDF, Upload, Download, Read Online, File Management">
+    <meta name="author" content="PDF HUB Team">
 </head>
 <body>
-    <header>
+    <header role="banner">
         <h1>PDF HUB</h1>
+        <nav role="navigation">
+            <ul>
+                <li><a href="#upload-section" aria-label="Upload Section">Upload</a></li>
+                <li><a href="#reading-section" aria-label="Read Online Section">Read Online</a></li>
+                <li><a href="#download-section" aria-label="Download Section">Download</a></li>
+            </ul>
+        </nav>
     </header>
     <main>
         <section id="upload-section">
-            <h2>Upload Your Files</h2>
-            <form id="upload-form">
-                <input type="file" id="file-input" multiple>
+            <h2>Upload Your PDF</h2>
+            <form id="uploadForm" action="/api/upload" method="post" encType="multipart/form-data">
+                <input type="file" name="file" accept=".pdf" required />
                 <button type="submit">Upload</button>
             </form>
+            <div id="response"></div>
         </section>
         <section id="reading-section">
             <h2>Online Reading</h2>
-            <p>This feature will allow you to read PDF files online.</p>
+            <p>This feature will allow you to read PDF files online. (Placeholder for future development)</p>
         </section>
         <section id="download-section">
             <h2>Download for Public</h2>
-            <p>Uploaded files will be available for download here.</p>
+            <p>Uploaded files will be available for download here. (Placeholder for file listing)</p>
         </section>
     </main>
     <footer>
         <p>&copy; 2024 PDF HUB</p>
     </footer>
     <script>
-        // Example JavaScript
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Page loaded and ready');
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const responseElement = document.getElementById('response');
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const result = await response.json();
+                responseElement.textContent = `Upload successful: ${JSON.stringify(result.files)}`;
+            } catch (error) {
+                responseElement.textContent = `Upload failed: ${error.message}`;
+            }
         });
 
-        // Form submission handling
-        document.getElementById('upload-form').addEventListener('submit', (event) => {
-            event.preventDefault(); // Prevent the default form submission behavior
-            const fileInput = document.getElementById('file-input');
-            if (fileInput.files.length > 0) {
-                console.log('Files selected:', fileInput.files);
-                // Implement file upload logic here
-            } else {
-                console.log('No files selected');
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded and ready');
         });
     </script>
 </body>
 </html>
-import formidable from 'formidable';
-import fs from 'fs';
-import path from 'path';
-
-export const config = {
-    api: {
-        bodyParser: false,
-    },
-};
-
-export default async (req, res) => {
-    const form = new formidable.IncomingForm();
-    form.uploadDir = path.join(process.cwd(), 'public/uploads');
-    form.keepExtensions = true;
-
-    form.parse(req, (err, fields, files) => {
-        if (err) {
-            res.status(500).json({ error: 'Error parsing the files' });
-            return;
-        }
-        res.status(200).json({ fields, files });
-    });
-};<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF HUB</title>
-    <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-    <header>
-        <h1>PDF HUB</h1>
-    </header>
-    <main>
-        <h2>Upload Your PDF</h2>
-        <form id="uploadForm" action="/api/upload" method="post" encType="multipart/form-data">
-            <input type="file" name="file" accept=".pdf" required />
-            <button type="submit">Upload</button>
-        </form>
-        <div id="response"></div>
-    </main>
-    <script src="/scripts.js"></script>
-</body>
-</html>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-}
-
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 1rem;
-    text-align: center;
-}
-
-main {
-    padding: 2rem;
-    text-align: center;
-}
-
-form {
-    margin: 0 auto;
-    max-width: 500px;
-    background: #fff;
-    padding: 1rem;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-input[type="file"] {
-    display: block;
-    margin: 1rem auto;
-}
-
-button {
-    background-color: #333;
-    color: #fff;
-    border: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-button:hover {
-    background-color: #555;
-}
-
-#response {
-    margin-top: 1rem;
-}
-document.getElementById('uploadForm').addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const formData = new FormData(event.target);
-    const responseElement = document.getElementById('response');
-
-    try {
-        const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-        });
-
-        const result = await response.json();
-        responseElement.textContent = `Upload successful: ${JSON.stringify(result.files)}`;
-    } catch (error) {
-        responseElement.textContent = `Upload failed: ${error.message}`;
-    }
-});
