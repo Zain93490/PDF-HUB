@@ -4,7 +4,157 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF HUB</title>
-    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        header nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        header nav ul li {
+            display: inline;
+            margin: 0 10px;
+        }
+
+        header nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        header nav ul li a:hover {
+            color: #ff6347;
+        }
+
+        main {
+            padding: 80px 2rem 2rem 2rem;
+            text-align: center;
+        }
+
+        section {
+            margin: 2rem 0;
+        }
+
+        form {
+            margin: 0 auto;
+            max-width: 500px;
+            background: #fff;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        form:hover {
+            transform: scale(1.05);
+        }
+
+        input[type="file"],
+        input[type="text"] {
+            display: block;
+            margin: 1rem auto;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #555;
+            transform: translateY(-3px);
+        }
+
+        #response,
+        #searchResults {
+            margin-top: 1rem;
+        }
+
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
+        }
+
+        .animated-bg {
+            background: url('https://source.unsplash.com/random/1600x900') no-repeat center center/cover;
+            height: 300px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .animated-bg:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: -1;
+        }
+
+        .fade-in {
+            animation: fadeIn 1.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            header nav ul {
+                display: flex;
+                flex-direction: column;
+            }
+
+            header nav ul li {
+                margin: 5px 0;
+            }
+
+            main {
+                padding: 80px 1rem 2rem 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -14,6 +164,7 @@
                 <li><a href="#upload-section">Upload</a></li>
                 <li><a href="#reading-section">Read Online</a></li>
                 <li><a href="#download-section">Download</a></li>
+                <li><a href="#search-section">Search</a></li>
             </ul>
         </nav>
     </header>
@@ -35,165 +186,62 @@
             <h2>Download for Public</h2>
             <p>Uploaded files will be available for download here. (Placeholder for file listing)</p>
         </section>
+        <section id="search-section" class="fade-in">
+            <h2>Search PDFs</h2>
+            <form id="searchForm">
+                <input type="text" id="searchInput" placeholder="Search for PDFs..." />
+                <button type="submit">Search</button>
+            </form>
+            <div id="searchResults"></div>
+        </section>
     </main>
     <footer>
         <p>&copy; 2024 PDF HUB</p>
     </footer>
-    <script src="/scripts.js"></script>
-</body>
-</html>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-}
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 1rem;
-    text-align: center;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
+            const formData = new FormData(event.target);
+            const responseElement = document.getElementById('response');
 
-header nav ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
 
-header nav ul li {
-    display: inline;
-    margin: 0 10px;
-}
-
-header nav ul li a {
-    color: #fff;
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-header nav ul li a:hover {
-    color: #ff6347;
-}
-
-main {
-    padding: 80px 2rem 2rem 2rem;
-    text-align: center;
-}
-
-section {
-    margin: 2rem 0;
-}
-
-form {
-    margin: 0 auto;
-    max-width: 500px;
-    background: #fff;
-    padding: 1rem;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    transition: transform 0.3s;
-}
-
-form:hover {
-    transform: scale(1.05);
-}
-
-input[type="file"] {
-    display: block;
-    margin: 1rem auto;
-}
-
-button {
-    background-color: #333;
-    color: #fff;
-    border: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s, transform 0.3s;
-}
-
-button:hover {
-    background-color: #555;
-    transform: translateY(-3px);
-}
-
-#response {
-    margin-top: 1rem;
-}
-
-footer {
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    padding: 1rem;
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-    box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
-}
-
-.animated-bg {
-    background: url('https://source.unsplash.com/random/1600x900') no-repeat center center/cover;
-    height: 300px;
-    position: relative;
-    z-index: 1;
-}
-
-.animated-bg:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: -1;
-}
-
-.fade-in {
-    animation: fadeIn 1.5s;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-document.getElementById('uploadForm').addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const formData = new FormData(event.target);
-    const responseElement = document.getElementById('response');
-
-    try {
-        const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
+                const result = await response.json();
+                responseElement.textContent = `Upload successful: ${JSON.stringify(result.files)}`;
+            } catch (error) {
+                responseElement.textContent = `Upload failed: ${error.message}`;
+            }
         });
 
-        const result = await response.json();
-        responseElement.textContent = `Upload successful: ${JSON.stringify(result.files)}`;
-    } catch (error) {
-        responseElement.textContent = `Upload failed: ${error.message}`;
-    }
-});
+        document.getElementById('searchForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Page loaded and ready');
-});
-import formidable from 'formidable';
+            const query = document.getElementById('searchInput').value;
+            const resultsElement = document.getElementById('searchResults');
+
+            try {
+                const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
+                const result = await response.json();
+                resultsElement.innerHTML = result.files.map(file => `<p>${file.name}</p>`).join('');
+            } catch (error) {
+                resultsElement.textContent = `Search failed: ${error.message}`;
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded and ready');
+        });
+    </script>
+</body>
+                    </html>
+(Node.js)
+
+                    import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
 
@@ -204,21 +252,34 @@ export const config = {
 };
 
 export default async (req, res) => {
-    const form = new formidable.IncomingForm();
-    const uploadDir = path.join(process.cwd(), 'public/uploads');
+    if (req.method === 'POST') {
+        const form = new formidable.IncomingForm();
+        const uploadDir = path.join(process.cwd(), 'public/uploads');
 
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    form.uploadDir = uploadDir;
-    form.keepExtensions = true;
-
-    form.parse(req, (err, fields, files) => {
-        if (err) {
-            res.status(500).json({ error: 'Error parsing the files' });
-            return;
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
         }
-        res.status(200).json({ fields, files });
-    });
+
+        form.uploadDir = uploadDir;
+        form.keepExtensions = true;
+
+        form.parse(req, (err, fields, files) => {
+            if (err) {
+                res.status(500).json({ error: 'Error parsing the files' });
+                return;
+            }
+            res.status(200).json({ fields, files });
+        });
+    } else if (req.method === 'GET' && req.url.startsWith('/api/search')) {
+        const query = new URL(req.url, `http://${req.headers.host}`).searchParams.get('query');
+        const uploadDir = path.join(process.cwd(), 'public/uploads');
+        
+        const files = fs.readdirSync(uploadDir)
+            .filter(file => file.toLowerCase().includes(query.toLowerCase()))
+            .map(file => ({ name: file }));
+
+        res.status(200).json({ files });
+    } else {
+        res.status(405).json({ error: 'Method Not Allowed' });
+    }
 };
