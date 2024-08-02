@@ -104,3 +104,115 @@
     </script>
 </body>
 </html>
+import formidable from 'formidable';
+import fs from 'fs';
+import path from 'path';
+
+export const config = {
+    api: {
+        bodyParser: false,
+    },
+};
+
+export default async (req, res) => {
+    const form = new formidable.IncomingForm();
+    form.uploadDir = path.join(process.cwd(), 'public/uploads');
+    form.keepExtensions = true;
+
+    form.parse(req, (err, fields, files) => {
+        if (err) {
+            res.status(500).json({ error: 'Error parsing the files' });
+            return;
+        }
+        res.status(200).json({ fields, files });
+    });
+};<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF HUB</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header>
+        <h1>PDF HUB</h1>
+    </header>
+    <main>
+        <h2>Upload Your PDF</h2>
+        <form id="uploadForm" action="/api/upload" method="post" encType="multipart/form-data">
+            <input type="file" name="file" accept=".pdf" required />
+            <button type="submit">Upload</button>
+        </form>
+        <div id="response"></div>
+    </main>
+    <script src="/scripts.js"></script>
+</body>
+</html>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+}
+
+main {
+    padding: 2rem;
+    text-align: center;
+}
+
+form {
+    margin: 0 auto;
+    max-width: 500px;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+input[type="file"] {
+    display: block;
+    margin: 1rem auto;
+}
+
+button {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+#response {
+    margin-top: 1rem;
+}
+document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const responseElement = document.getElementById('response');
+
+    try {
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.json();
+        responseElement.textContent = `Upload successful: ${JSON.stringify(result.files)}`;
+    } catch (error) {
+        responseElement.textContent = `Upload failed: ${error.message}`;
+    }
+});
