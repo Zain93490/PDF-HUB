@@ -1,4 +1,4 @@
-ko<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,6 +10,7 @@ ko<!DOCTYPE html>
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
         }
 
         header {
@@ -17,10 +18,36 @@ ko<!DOCTYPE html>
             color: #fff;
             padding: 1rem;
             text-align: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        header nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        header nav ul li {
+            display: inline;
+            margin: 0 10px;
+        }
+
+        header nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        header nav ul li a:hover {
+            color: #ff6347;
         }
 
         main {
-            padding: 2rem;
+            padding: 80px 2rem 2rem 2rem;
             text-align: center;
         }
 
@@ -35,6 +62,11 @@ ko<!DOCTYPE html>
             padding: 1rem;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        form:hover {
+            transform: scale(1.05);
         }
 
         input[type="file"] {
@@ -49,10 +81,12 @@ ko<!DOCTYPE html>
             padding: 0.5rem 1rem;
             cursor: pointer;
             border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
         button:hover {
             background-color: #555;
+            transform: translateY(-3px);
         }
 
         #response {
@@ -64,15 +98,58 @@ ko<!DOCTYPE html>
             color: #fff;
             text-align: center;
             padding: 1rem;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
+        }
+
+        .animated-bg {
+            background: url('https://source.unsplash.com/random/1600x900') no-repeat center center/cover;
+            height: 300px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .animated-bg:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: -1;
+        }
+
+        .fade-in {
+            animation: fadeIn 1.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
 <body>
     <header>
         <h1>PDF HUB</h1>
+        <nav>
+            <ul>
+                <li><a href="#upload-section">Upload</a></li>
+                <li><a href="#reading-section">Read Online</a></li>
+                <li><a href="#download-section">Download</a></li>
+            </ul>
+        </nav>
     </header>
     <main>
-        <section id="upload-section">
+        <div class="animated-bg"></div>
+        <section id="upload-section" class="fade-in">
             <h2>Upload Your PDF</h2>
             <form id="uploadForm" action="/api/upload" method="post" encType="multipart/form-data">
                 <input type="file" name="file" accept=".pdf" required />
@@ -80,11 +157,11 @@ ko<!DOCTYPE html>
             </form>
             <div id="response"></div>
         </section>
-        <section id="reading-section">
+        <section id="reading-section" class="fade-in">
             <h2>Online Reading</h2>
             <p>This feature will allow you to read PDF files online. (Placeholder for future development)</p>
         </section>
-        <section id="download-section">
+        <section id="download-section" class="fade-in">
             <h2>Download for Public</h2>
             <p>Uploaded files will be available for download here. (Placeholder for file listing)</p>
         </section>
@@ -118,33 +195,3 @@ ko<!DOCTYPE html>
     </script>
 </body>
 </html>
-import formidable from 'formidable';
-import fs from 'fs';
-import path from 'path';
-
-export const config = {
-    api: {
-        bodyParser: false,
-    },
-};
-
-export default async (req, res) => {
-    const form = new formidable.IncomingForm();
-    const uploadDir = path.join(process.cwd(), 'public/uploads');
-
-    // Ensure upload directory exists
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    form.uploadDir = uploadDir;
-    form.keepExtensions = true;
-
-    form.parse(req, (err, fields, files) => {
-        if (err) {
-            res.status(500).json({ error: 'Error parsing the files' });
-            return;
-        }
-        res.status(200).json({ fields, files });
-    });
-};
