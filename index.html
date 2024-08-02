@@ -245,38 +245,40 @@ import path from 'path';
 
 // API Configuration to disable default bodyParser
 export const config = {
-    api: {
-        bodyParser: false,
-    },
+  api: {
+    bodyParser: false,
+  },
 };
 
 // Default export for the API route
 export default async (req, res) => {
-    if (req.method === 'POST') {
-        const form = new formidable.IncomingForm();
-        const uploadDir = path.join(process.cwd(), 'public/uploads');
+  if (req.method === 'POST') {
+    const form = new formidable.IncomingForm();
+    const uploadDir = path.join(process.cwd(), 'public/uploads');
 
-        // Ensure the upload directory exists
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-
-        form.uploadDir = uploadDir;
-        form.keepExtensions = true;
-
-        // Parse the incoming form
-        form.parse(req, (err, fields, files) => {
-            if (err) {
-                // Log the error for debugging
-                console.error('Error parsing the files:', err);
-                res.status(500).json({ error: 'Error parsing the files' });
-                return;
-            }
-            // Respond with the parsed fields and files
-            res.status(200).json({ fields, files });
-        });
-    } else {
-        // Method not allowed
-        res.status(405).json({ error: 'Method Not Allowed' });
+    // Ensure the upload directory exists
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
     }
+
+    form.uploadDir = uploadDir;
+    form.keepExtensions = true;
+
+    // Parse the incoming form
+    form.parse(req, (err, fields, files) => {
+      if (err) {
+        // Log the error for debugging
+        console.error('Error parsing the files:', err);
+        res.status(500).json({ error: 'Error parsing the files' });
+        return;
+      }
+
+      // Send a success response with the uploaded file information
+      res.status(200).json({ fields, files });
+    });
+  } else {
+    // Handle any other HTTP method
+    res.setHeader('Allow', ['POST']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
 };
