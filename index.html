@@ -282,3 +282,5 @@ export default async (req, res) => {
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };
+// Log more detailed error information
+console.error('Error parsing the files:', err.message);
