@@ -239,47 +239,35 @@
     </script>
 </body>
                     </html>
-(Node.js)
-
-                    import formidable from 'formidable';
+import express from 'express';
+import cors from 'cors';
+import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
 
-export const config = {
-    api: {
-        bodyParser: false,
-    },
-};
+const app = express();
+app.use(cors()); // Allow all origins
 
-export default async (req, res) => {
-    if (req.method === 'POST') {
-        const form = new formidable.IncomingForm();
-        const uploadDir = path.join(process.cwd(), 'public/uploads');
+app.post('/api/upload', (req, res) => {
+    const form = new formidable.IncomingForm();
+    const uploadDir = path.join(process.cwd(), 'public/uploads');
 
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-
-        form.uploadDir = uploadDir;
-        form.keepExtensions = true;
-
-        form.parse(req, (err, fields, files) => {
-            if (err) {
-                res.status(500).json({ error: 'Error parsing the files' });
-                return;
-            }
-            res.status(200).json({ fields, files });
-        });
-    } else if (req.method === 'GET' && req.url.startsWith('/api/search')) {
-        const query = new URL(req.url, `http://${req.headers.host}`).searchParams.get('query');
-        const uploadDir = path.join(process.cwd(), 'public/uploads');
-        
-        const files = fs.readdirSync(uploadDir)
-            .filter(file => file.toLowerCase().includes(query.toLowerCase()))
-            .map(file => ({ name: file }));
-
-        res.status(200).json({ files });
-    } else {
-        res.status(405).json({ error: 'Method Not Allowed' });
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
     }
-};
+
+    form.uploadDir = uploadDir;
+    form.keepExtensions = true;
+
+    form.parse(req, (err, fields, files) => {
+        if (err) {
+            res.status(500).json({ error: 'Error parsing the files' });
+            return;
+        }
+        res.status(200).json({ fields, files });
+    });
+});
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
